@@ -1,53 +1,30 @@
-from datetime import datetime
-from flet import Icons
-
-
-class AppConst:
-    current_date = datetime.now().strftime("%Y-%m-%d")
-
-    quotations_types = {
-        "IMPORT": "Repuestos de importación",
-        "STOCK": "Repuestos en stock",
-    }
-
-    left_menu = [
-        {"icon": Icons.RECEIPT, "icon_selected": Icons.RECEIPT_OUTLINED, "label": "CV"},
-        {
-            "icon": Icons.RECEIPT_LONG,
-            "icon_selected": Icons.RECEIPT_LONG_OUTLINED,
-            "label": "PC",
-        },
-        {
-            "icon": Icons.SETTINGS,
-            "icon_selected": Icons.SETTINGS_OUTLINED,
-            "label": "Configuración",
-        },
-    ]
-
-    currencies = {
+{
+    "currencies": {
         "COP": "Pesos Colombianos + IVA",
         "USD": "Dólares Americanos + IVA liquidados a la TRM del día de facturación",
-        "EUR": "Euros + IVA liquidados a la TRM del día de facturación",
-    }
-    currencies_pv = {
+        "EUR": "Euros + IVA liquidados a la TRM del día de facturación"
+    },
+    "currencies_pv": {
         "USD": "Dolares Americanos",
         "EUR": "Euros",
         "GBP": "Libras Esterlinas",
         "JPY": "Yenes Japoneses",
-        "CNY": "Yuanes Chinos",
-    }
-
-    pay_types_import = {
+        "CNY": "Yuanes Chinos"
+    },
+    "pay_types_import": {
         "50-50": "50 % Anticipo para iniciar el proceso de importación, 50% 30 días fecha factura",
         "50-CR": "50 % Anticipo para iniciar el proceso de importación, 50% contraentrega",
-        "100": "100% Anticipado",
-    }
-
-    pay_types_stock = {"CONT": "Contado", "CRED": "30 días factura"}
-
-    terms_of_payment = {"ADV": "ADVANCE", "30": "30D"}
-
-    incoterms = {
+        "100": "100% Anticipado"
+    },
+    "pay_types_stock": {
+        "CONT": "Contado", 
+        "CRED": "30 días factura"
+    },
+    "terms_of_payment": {
+        "ADV": "ADVANCE", 
+        "30": "30D"
+    },
+    "incoterms": {
         "EXW": "Ex Works - En fábrica",
         "FCA": "Free Carrier - (Libre transportista)",
         "CPT": "Carriage Paid To - (Transporte pagado hasta)",
@@ -58,13 +35,12 @@ class AppConst:
         "FAS": "Free Alongside Ship - (Libre al costado del buque)",
         "FOB": "Free On Board - (Libre a bordo)",
         "CFR": "Cost and Freight - (Costo y flete)",
-        "CIF": "Cost, Insurance and Freight - (Costo, seguro y flete)",
-    }
-
-    name = {
+        "CIF": "Cost, Insurance and Freight - (Costo, seguro y flete)"
+    },
+    "name": {
         "contact": "Daniela Garcia",
         "job_title": "Asistente de línea",
         "email_imocom": "dgarcia@imocom.com.co"
-    }
-
-    dhl = "DHL - 960960185"
+    },
+    "dhl": "DHL - 960960185"
+}

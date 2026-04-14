@@ -1,4 +1,18 @@
-from flet import Page, SafeArea, run, Row, SelectionArea, VerticalDivider, Column, Text, MainAxisAlignment, Padding, ScrollMode, Container, Alignment, FontWeight, Divider
+from flet import (
+    Page,
+    SafeArea,
+    run,
+    Row,
+    SelectionArea,
+    VerticalDivider,
+    Column,
+    Text,
+    MainAxisAlignment,
+    Padding,
+    ScrollMode,
+    FontWeight,
+    Divider,
+)
 from components.TopBar import TopBar
 from components.LeftBar import LeftBar
 from components.views.cv import CvView
@@ -23,15 +37,22 @@ def main(page: Page):
                         alignment=MainAxisAlignment.START,
                         expand=True,
                         controls=[CvView()],
-                        scroll=ScrollMode.AUTO
+                        scroll=ScrollMode.AUTO,
                     ),
                 ],
             ),
         ),
         Divider(height=1, color="onSurfaveVariant"),
-        Row(controls=[Text("© Desarrollado por: Cristian Santiago Rincón, 2025 Imocom", color="onSurfaceVariant", weight=FontWeight.BOLD)],
-            alignment=MainAxisAlignment.CENTER)
-
+        Row(
+            controls=[
+                Text(
+                    "© Desarrollado por: Cristian Santiago Rincón, 2025 Imocom",
+                    color="onSurfaceVariant",
+                    weight=FontWeight.BOLD,
+                )
+            ],
+            alignment=MainAxisAlignment.CENTER,
+        ),
     )
 
 

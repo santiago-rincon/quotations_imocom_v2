@@ -1,6 +1,7 @@
 from flet import NavigationRail, NavigationRailLabelType, NavigationRailDestination
 from components.views.cv import CvView
 from components.views.pc import PcView
+from components.views.settings import SettingsView
 
 
 class LeftBar(NavigationRail):
@@ -14,7 +15,7 @@ class LeftBar(NavigationRail):
                 NavigationRailDestination(
                     icon=destination["icon"],
                     label=destination["label"],
-                    selected_icon=destination["icon_selected"]
+                    selected_icon=destination["icon_selected"],
                 )
             )
         self.destinations = destinations
@@ -45,3 +46,5 @@ class LeftBar(NavigationRail):
             body_control.controls.append(CvView())
         elif self.selected_index == 1:
             body_control.controls.append(PcView())
+        elif self.selected_index == 2:
+            body_control.controls.append(SettingsView())

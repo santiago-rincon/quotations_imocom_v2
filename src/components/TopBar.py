@@ -15,7 +15,8 @@ class TopBar(AppBar):
             )
         ]
         self.title_text_style = TextStyle(
-            size=24, weight=FontWeight.BOLD, color="onSurfaceVariant")
+            size=24, weight=FontWeight.BOLD, color="onSurfaceVariant"
+        )
         self.bgcolor = "outlineVariant"
 
     def build(self):
@@ -24,7 +25,7 @@ class TopBar(AppBar):
             title=self.title,
             actions=self.actions,
             title_text_style=self.title_text_style,
-            bgcolor=self.bgcolor
+            bgcolor=self.bgcolor,
         )
 
     def _change_appearance(self):
