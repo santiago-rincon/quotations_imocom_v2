@@ -1,5 +1,5 @@
 from datetime import datetime
-from flet import Icons
+import flet as ft
 
 
 class AppConst:
@@ -11,60 +11,21 @@ class AppConst:
     }
 
     left_menu = [
-        {"icon": Icons.RECEIPT, "icon_selected": Icons.RECEIPT_OUTLINED, "label": "CV"},
+        {"icon": ft.Icons.RECEIPT,
+            "icon_selected": ft.Icons.RECEIPT_OUTLINED, "label": "CV"},
         {
-            "icon": Icons.RECEIPT_LONG,
-            "icon_selected": Icons.RECEIPT_LONG_OUTLINED,
+            "icon": ft.Icons.RECEIPT_LONG,
+            "icon_selected": ft.Icons.RECEIPT_LONG_OUTLINED,
             "label": "PC",
         },
         {
-            "icon": Icons.SETTINGS,
-            "icon_selected": Icons.SETTINGS_OUTLINED,
+            "icon": ft.Icons.SETTINGS,
+            "icon_selected": ft.Icons.SETTINGS_OUTLINED,
             "label": "Configuración",
         },
     ]
 
-    currencies = {
-        "COP": "Pesos Colombianos + IVA",
-        "USD": "Dólares Americanos + IVA liquidados a la TRM del día de facturación",
-        "EUR": "Euros + IVA liquidados a la TRM del día de facturación",
+    settings_views = {
+        "CV": "Configuraciones para el módulo de CV's",
+        "PC": "Configuraciones para el módulo de PC's",
     }
-    currencies_pv = {
-        "USD": "Dolares Americanos",
-        "EUR": "Euros",
-        "GBP": "Libras Esterlinas",
-        "JPY": "Yenes Japoneses",
-        "CNY": "Yuanes Chinos",
-    }
-
-    pay_types_import = {
-        "50-50": "50 % Anticipo para iniciar el proceso de importación, 50% 30 días fecha factura",
-        "50-CR": "50 % Anticipo para iniciar el proceso de importación, 50% contraentrega",
-        "100": "100% Anticipado",
-    }
-
-    pay_types_stock = {"CONT": "Contado", "CRED": "30 días factura"}
-
-    terms_of_payment = {"ADV": "ADVANCE", "30": "30D"}
-
-    incoterms = {
-        "EXW": "Ex Works - En fábrica",
-        "FCA": "Free Carrier - (Libre transportista)",
-        "CPT": "Carriage Paid To - (Transporte pagado hasta)",
-        "CIP": "Carriage and Insurance Paid To - (Transporte y seguro pagados hasta)",
-        "DAP": "Delivered at Place - (Entregado en lugar)",
-        "DPU": "Delivered at Place Unloaded - (Entregado en lugar descargado)",
-        "DDP": "Delivered Duty Paid - (Entregado derechos pagados)",
-        "FAS": "Free Alongside Ship - (Libre al costado del buque)",
-        "FOB": "Free On Board - (Libre a bordo)",
-        "CFR": "Cost and Freight - (Costo y flete)",
-        "CIF": "Cost, Insurance and Freight - (Costo, seguro y flete)",
-    }
-
-    name = {
-        "contact": "Daniela Garcia",
-        "job_title": "Asistente de línea",
-        "email_imocom": "dgarcia@imocom.com.co"
-    }
-
-    dhl = "DHL - 960960185"

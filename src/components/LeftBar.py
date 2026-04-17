@@ -1,18 +1,18 @@
-from flet import NavigationRail, NavigationRailLabelType, NavigationRailDestination
+import flet as ft
 from components.views.cv import CvView
 from components.views.pc import PcView
 from components.views.settings import SettingsView
 
 
-class LeftBar(NavigationRail):
+class LeftBar(ft.NavigationRail):
     def __init__(self, dest, selected_index=0):
         super().__init__()
         self.selected_index = selected_index
-        self.label_type = NavigationRailLabelType.ALL
+        self.label_type = ft.NavigationRailLabelType.ALL
         destinations = []
         for destination in dest:
             destinations.append(
-                NavigationRailDestination(
+                ft.NavigationRailDestination(
                     icon=destination["icon"],
                     label=destination["label"],
                     selected_icon=destination["icon_selected"],
@@ -22,7 +22,7 @@ class LeftBar(NavigationRail):
         self.on_change = lambda _: self._on_change()
 
     def build(self):
-        return NavigationRail(
+        return ft.NavigationRail(
             selected_index=self.selected_index,
             label_type=self.label_type,
             destinations=self.destinations,

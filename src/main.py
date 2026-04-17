@@ -1,59 +1,50 @@
-from flet import (
-    Page,
-    SafeArea,
-    run,
-    Row,
-    SelectionArea,
-    VerticalDivider,
-    Column,
-    Text,
-    MainAxisAlignment,
-    Padding,
-    ScrollMode,
-    FontWeight,
-    Divider,
-)
+
+import flet as ft
 from components.TopBar import TopBar
 from components.LeftBar import LeftBar
 from components.views.cv import CvView
+
 from config.constants import AppConst
+import os
 
 
-def main(page: Page):
-    page.title = "Cotizaciones"
-    page.padding = Padding(top=0, bottom=10, left=10, right=10)
+def main(page: ft.Page):
+    print(os.getcwd())
+    page.title = "Cotizaciones Imocom mecanizado"
+    page.padding = ft.Padding(top=0, bottom=10, left=10, right=10)
     page.appbar = TopBar("Cotizaciones Imocom")
+    page.window.maximized = True
     page.add(
-        SafeArea(
+        ft.SafeArea(
             key="safe_area",
             expand=True,
-            content=Row(
+            content=ft.Row(
                 expand=True,
                 controls=[
-                    SelectionArea(content=LeftBar(AppConst.left_menu)),
-                    VerticalDivider(width=1),
-                    Column(
+                    ft.SelectionArea(content=LeftBar(AppConst.left_menu)),
+                    ft.VerticalDivider(width=1),
+                    ft.Column(
                         key="body",
-                        alignment=MainAxisAlignment.START,
+                        alignment=ft.MainAxisAlignment.START,
                         expand=True,
                         controls=[CvView()],
-                        scroll=ScrollMode.AUTO,
+                        scroll=ft.ScrollMode.AUTO,
                     ),
                 ],
             ),
         ),
-        Divider(height=1, color="onSurfaveVariant"),
-        Row(
+        ft.Divider(height=1, color="onSurfaveVariant"),
+        ft.Row(
             controls=[
-                Text(
+                ft.Text(
                     "© Desarrollado por: Cristian Santiago Rincón, 2025 Imocom",
                     color="onSurfaceVariant",
-                    weight=FontWeight.BOLD,
+                    weight=ft.FontWeight.BOLD,
                 )
             ],
-            alignment=MainAxisAlignment.CENTER,
+            alignment=ft.MainAxisAlignment.CENTER,
         ),
     )
 
 
-run(main)
+ft.run(main)

@@ -1,83 +1,60 @@
-from flet import (
-    Container,
-    Row,
-    TextField,
-    DropdownM2,
-    dropdownm2,
-    Text,
-    MainAxisAlignment,
-    FontWeight,
-    IconButton,
-    Icons,
-    DataColumn,
-    DataTable,
-    FilePicker,
-    OutlinedButton,
-    FilePickerFileType,
-    SnackBar,
-    DataCell,
-    DataRow,
-    Column,
-    Banner,
-    ButtonStyle,
-    Icon,
-    TextButton,
-)
+import flet as ft
 from config.constants import AppConst
 from docxtpl import DocxTemplate
 from utils.utils import get_final_time, get_banner_message
 import locale
 import os
 from re import match
+from json import load as json_load
 
 locale.setlocale(locale.LC_ALL, "es_CO.UTF-8")
 
 
-class CvView(Container):
+class CvView(ft.Container):
     def __init__(self):
         super().__init__()
-
+        self.settings = self._load_settings()
         ##### Client info #####
-        self.client_info = Row(
-            controls=[Text("Información del cliente",
-                           size=20, weight=FontWeight.BOLD)],
-            alignment=MainAxisAlignment.CENTER,
+        self.client_info = ft.Row(
+            controls=[ft.Text("Información del cliente",
+                              size=20, weight=ft.FontWeight.BOLD)],
+            alignment=ft.MainAxisAlignment.CENTER,
         )
-        self.client_field = TextField(
+        self.client_field = ft.TextField(
             label="Cliente",
             hint_text="Ingresa el nombre del cliente",
             expand=2,
             border_color="onSurfaceVariant",
         )
-        self.contact_field = TextField(
+        self.contact_field = ft.TextField(
             label="Contacto del cliente",
             hint_text="Sra. Angela Cruz",
             expand=2,
             border_color="onSurfaceVariant",
         )
-        self.cv_field = TextField(
+        self.cv_field = ft.TextField(
             label="Número de CV",
             prefix="CV-",
             on_change=self._validate_number,
             expand=1,
             border_color="onSurfaceVariant",
         )
-        self.address_field = TextField(
+        self.address_field = ft.TextField(
             label="Dirección",
             hint_text="Parque industrial San Jorge, Bodega 10",
             expand=1,
             border_color="onSurfaceVariant",
         )
-        self.location_field = TextField(
+        self.location_field = ft.TextField(
             label="Ubicación",
             hint_text="Mosquera, Cundinamarca",
             expand=1,
             border_color="onSurfaceVariant",
         )
-        self.quotation_type_field = DropdownM2(
+        self.quotation_type_field = ft.DropdownM2(
             options=[
-                dropdownm2.Option(AppConst.quotations_types["IMPORT"]),
-                dropdownm2.Option(AppConst.quotations_types["STOCK"]),
+                ft.dropdownm2.Option(AppConst.quotations_types["IMPORT"]),
+                ft.dropdownm2.Option(AppConst.quotations_types["STOCK"]),
             ],
             expand=1,
             hint_text="Seleccione el tipo de cotización",
@@ -85,66 +62,66 @@ class CvView(Container):
             value=AppConst.quotations_types["IMPORT"],
             border_color="onSurfaceVariant",
         )
-        self.row1 = Row(
+        self.row1 = ft.Row(
             controls=[self.client_field, self.contact_field, self.cv_field],
             spacing=10,
-            alignment=MainAxisAlignment.SPACE_BETWEEN,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         )
-        self.row2 = Row(
+        self.row2 = ft.Row(
             controls=[
                 self.address_field,
                 self.location_field,
                 self.quotation_type_field,
             ],
             spacing=10,
-            alignment=MainAxisAlignment.SPACE_BETWEEN,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         )
 
         ##### Product info #####
-        self.product_title = Row(
+        self.product_title = ft.Row(
             controls=[
-                Text("Información del producto",
-                     size=20, weight=FontWeight.BOLD)
+                ft.Text("Información del producto",
+                        size=20, weight=ft.FontWeight.BOLD)
             ],
-            alignment=MainAxisAlignment.CENTER,
+            alignment=ft.MainAxisAlignment.CENTER,
         )
-        self.article_code_field = TextField(
+        self.article_code_field = ft.TextField(
             label="Código del artículo",
             hint_text="G111000001",
             expand=1,
             border_color="onSurfaceVariant",
         )
-        self.description_field = TextField(
+        self.description_field = ft.TextField(
             label="Descripción",
             hint_text="Descripción del item",
             expand=4,
             border_color="onSurfaceVariant",
         )
-        self.quantity_field = TextField(
+        self.quantity_field = ft.TextField(
             label="Cantidad",
             hint_text="1",
             expand=1,
             on_change=self._validate_number,
             border_color="onSurfaceVariant",
         )
-        self.unit_field = TextField(
+        self.unit_field = ft.TextField(
             label="Unidad", hint_text="UND", expand=1, border_color="onSurfaceVariant"
         )
-        self.selling_price = TextField(
+        self.selling_price = ft.TextField(
             label="Precio de venta",
             prefix="$",
             expand=1,
             on_change=self._validate_number,
             border_color="onSurfaceVariant",
         )
-        self.add_btn = IconButton(
-            icon=Icons.ADD,
+        self.add_btn = ft.IconButton(
+            icon=ft.Icons.ADD,
             icon_color="green400",
             icon_size=27,
             tooltip="Añadir producto",
             on_click=self._add_product,
         )
-        self.table_row = Row(
+        self.table_row = ft.Row(
             controls=[
                 self.description_field,
                 self.quantity_field,
@@ -153,99 +130,102 @@ class CvView(Container):
                 self.add_btn,
             ],
             spacing=10,
-            alignment=MainAxisAlignment.SPACE_BETWEEN,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         )
         ##### Table info product #####
-        self.table_info = DataTable(
+        self.table_info = ft.DataTable(
             columns=[
-                DataColumn(Text("Item"), numeric=True),
-                DataColumn(Text("Descripción")),
-                DataColumn(Text("Fecha de envío")),
-                DataColumn(Text("Cantidad")),
-                DataColumn(Text("Unidad")),
-                DataColumn(Text("Precio de venta")),
-                DataColumn(Text("Importe")),
-                DataColumn(Text("Acciones")),
+                ft.DataColumn(ft.Text("Item"), numeric=True),
+                ft.DataColumn(ft.Text("Descripción")),
+                ft.DataColumn(ft.Text("Fecha de envío")),
+                ft.DataColumn(ft.Text("Cantidad")),
+                ft.DataColumn(ft.Text("Unidad")),
+                ft.DataColumn(ft.Text("Precio de venta")),
+                ft.DataColumn(ft.Text("Importe")),
+                ft.DataColumn(ft.Text("Acciones")),
             ],
             data_row_min_height=48,
             data_row_max_height=float("inf"),
         )
-        self.table_info_row = Row(
-            controls=[self.table_info], spacing=10, alignment=MainAxisAlignment.CENTER
+        self.table_info_row = ft.Row(
+            controls=[self.table_info], spacing=10, alignment=ft.MainAxisAlignment.CENTER
         )
 
         ##### Other data #####
-        self.other_data_title = Row(
-            controls=[Text("Otros datos", size=20, weight=FontWeight.BOLD)],
-            alignment=MainAxisAlignment.CENTER,
+        self.other_data_title = ft.Row(
+            controls=[ft.Text("Otros datos", size=20,
+                              weight=ft.FontWeight.BOLD)],
+            alignment=ft.MainAxisAlignment.CENTER,
         )
-        self.pay_type = DropdownM2(
+        self.pay_type = ft.DropdownM2(
             options=[
-                dropdownm2.Option(value) for value in AppConst.pay_types_import.values()
+                ft.dropdownm2.Option(value) for value in self.settings["pay_types_import"]
             ],
             expand=2,
             hint_text="Seleccione la forma de pago",
             border_color="onSurfaceVariant",
         )
-        self.final_time = TextField(
+        self.final_time = ft.TextField(
             label="Tiempo de entrega en semanas",
             hint_text="6 a 7",
             expand=1,
             border_color="onSurfaceVariant",
         )
-        self.currency_field = DropdownM2(
-            options=[dropdownm2.Option(value)
-                     for value in AppConst.currencies.keys()],
+        self.currency_field = ft.DropdownM2(
+            options=[
+                ft.dropdownm2.Option(value) for value in self.settings["currencies"].keys()
+            ],
             expand=1,
             hint_text="Seleccione la moneda",
             border_color="onSurfaceVariant",
         )
-        self.other_data_row = Row(
+        self.other_data_row = ft.Row(
             controls=[self.pay_type, self.final_time, self.currency_field],
-            alignment=MainAxisAlignment.SPACE_BETWEEN,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         )
 
         ##### Buttons #####
         self.file_picker = None
-        self.send_button = Row(
+        self.send_button = ft.Row(
             controls=[
-                OutlinedButton(
-                    content=Text("Generar cotización", size=18),
+                ft.OutlinedButton(
+                    content=ft.Text("Generar cotización", size=18),
                     on_click=self._handle_save_file,
                 )
             ],
-            alignment=MainAxisAlignment.START,
+            alignment=ft.MainAxisAlignment.START,
             expand=1,
         )
-        self.clear_button = Row(
+        self.clear_button = ft.Row(
             controls=[
-                OutlinedButton(
-                    content=Text("Limpiar campos", size=18),
+                ft.OutlinedButton(
+                    content=ft.Text("Limpiar campos", size=18),
                     on_click=lambda _: self._clear_fileds(),
                 )
             ],
-            alignment=MainAxisAlignment.END,
+            alignment=ft.MainAxisAlignment.END,
             expand=1,
         )
-        self.buttons_row = Row(
+        self.buttons_row = ft.Row(
             controls=[self.send_button, self.clear_button],
-            alignment=MainAxisAlignment.SPACE_BETWEEN,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         )
 
-        self.error_text = Text("Error:", color="red400")
+        self.error_text = ft.Text("Error:", color="red400")
 
         ##### Banner #####
-        self.banner = Banner(
+        self.banner = ft.Banner(
             bgcolor="green100",
-            leading=Icon(Icons.CHECK_CIRCLE_SHARP, color="green", size=40),
-            content=Text(
+            leading=ft.Icon(ft.Icons.CHECK_CIRCLE_SHARP,
+                            color="green", size=40),
+            content=ft.Text(
                 value="",
                 color="black",
             ),
             actions=[],
         )
 
-        self.content = Column(
+        self.content = ft.Column(
             controls=[
                 self.client_info,
                 self.row1,
@@ -262,13 +242,14 @@ class CvView(Container):
         )
 
     def build(self):
-        return Container(content=self.content, expand=True)
+        return ft.Container(content=self.content, expand=True)
 
     def _validate_number(self, e):
         field = e.control
         if (not field.value.isdigit()) and len(field.value) > 0:
             self.page.show_dialog(
-                SnackBar(Text("⚠ Solo se permiten números"), duration=3000)
+                ft.SnackBar(ft.Text("⚠ Solo se permiten números"),
+                            duration=3000)
             )
             field.value = field.value[:-1]
             self.page.update()
@@ -278,7 +259,7 @@ class CvView(Container):
         self.table_info.rows.clear()
         if quotation_type == AppConst.quotations_types["IMPORT"]:
             self.pay_type.options = [
-                dropdownm2.Option(value) for value in AppConst.pay_types_import.values()
+                ft.dropdownm2.Option(value) for value in self.settings["pay_types_import"]
             ]
             self.table_row.controls = [
                 self.description_field,
@@ -295,7 +276,7 @@ class CvView(Container):
             ]
         elif quotation_type == AppConst.quotations_types["STOCK"]:
             self.pay_type.options = [
-                dropdownm2.Option(value) for value in AppConst.pay_types_stock.values()
+                ft.dropdownm2.Option(value) for value in self.settings["pay_types_stock"]
             ]
             self.table_row.controls = [
                 self.article_code_field,
@@ -325,8 +306,6 @@ class CvView(Container):
         self.pay_type.value = ""
         self.final_time.value = ""
         self.currency_field.value = ""
-        self.imocom_contact.value = ""
-        self.job_title.value = ""
         self.table_info.rows.clear()
         self.page.update()
 
@@ -359,20 +338,20 @@ class CvView(Container):
         except Exception as E:
             print(E)
             self.page.show_dialog(
-                SnackBar(Text("⚠ Todos los campos son obligatorios"),
-                         duration=3000)
+                ft.SnackBar(
+                    ft.Text("⚠ Todos los campos son obligatorios"), duration=3000)
             )
             return
         self.table_info.rows.append(
-            DataRow(
-                cells=[DataCell(Text(prod, selectable=True))
+            ft.DataRow(
+                cells=[ft.DataCell(ft.Text(prod, selectable=True))
                        for prod in product]
                 + [
-                    DataCell(
-                        Row(
+                    ft.DataCell(
+                        ft.Row(
                             controls=[
-                                IconButton(
-                                    icon=Icons.DELETE_FOREVER_ROUNDED,
+                                ft.IconButton(
+                                    icon=ft.Icons.DELETE_FOREVER_ROUNDED,
                                     icon_color="red400",
                                     icon_size=20,
                                     tooltip="Eliminar producto",
@@ -380,7 +359,7 @@ class CvView(Container):
                                     key=id,
                                 )
                             ],
-                            alignment=MainAxisAlignment.CENTER,
+                            alignment=ft.MainAxisAlignment.CENTER,
                         )
                     )
                 ]
@@ -411,8 +390,8 @@ class CvView(Container):
 
     async def _handle_save_file(self, e):
         try:
-            path = await FilePicker().save_file(
-                file_type=FilePickerFileType.CUSTOM,
+            path = await ft.FilePicker().save_file(
+                file_type=ft.FilePickerFileType.CUSTOM,
                 file_name=f"CV-{self.cv_field.value}-{self.client_field.value.upper()}",
                 allowed_extensions=["docx"],
             )
@@ -429,14 +408,14 @@ class CvView(Container):
                 "location": self.location_field.value.upper(),
                 "currency": self.currency_field.value,
                 "pay_type": self.pay_type.value,
-                "currency_text": AppConst.currencies[self.currency_field.value],
-                "contact_imocom": AppConst.name["contact"].upper(),
-                "job_title": AppConst.name["job_title"].upper(),
+                "currency_text": self.settings["currencies"][self.currency_field.value],
+                "contact_imocom": self.settings["name"]["contact"].upper(),
+                "job_title": self.settings["name"]["job_title"].upper(),
             }
             for value in context.values():
                 if len(value) == 0:
                     raise Exception("Data incomplete")
-            doc = DocxTemplate("src/assets/schema.docx")  # development path
+            doc = DocxTemplate("assets/schema.docx")  # development path
             # doc = DocxTemplate('assets/schema.docx')  # production path
             products = []
             total_send = 0
@@ -490,24 +469,24 @@ class CvView(Container):
             banner_controls = []
             if self.page.platform.value != "windows":
                 banner_controls.append(
-                    TextButton(
+                    ft.TextButton(
                         content="Ok",
-                        style=ButtonStyle(color="blue"),
+                        style=ft.ButtonStyle(color="blue"),
                         on_click=lambda _: self.page.pop_dialog(),
                     )
                 )
             else:
                 banner_controls.append(
-                    Row(
+                    ft.Row(
                         controls=[
-                            TextButton(
+                            ft.TextButton(
                                 content="Si",
-                                style=ButtonStyle(color="blue"),
+                                style=ft.ButtonStyle(color="blue"),
                                 on_click=lambda _: self._open_file(path),
                             ),
-                            TextButton(
+                            ft.TextButton(
                                 content="No",
-                                style=ButtonStyle(color="blue"),
+                                style=ft.ButtonStyle(color="blue"),
                                 on_click=lambda _: self.page.pop_dialog(),
                             ),
                         ],
@@ -525,8 +504,8 @@ class CvView(Container):
                 self.page.add(self.error_text)
                 self.page.update()
             self.page.show_dialog(
-                SnackBar(
-                    Text(
+                ft.SnackBar(
+                    ft.Text(
                         "⚠ La ventana de guardado fue cerrada, o aún faltan datos para realizar la cotización"
                     ),
                     duration=5000,
@@ -542,3 +521,8 @@ class CvView(Container):
             self.page.add(self.error_text)
         finally:
             self.page.pop_dialog()
+
+    def _load_settings(self):
+        with open("config/settings.json", "r", encoding="utf-8") as f:
+            settings = json_load(f)
+            return settings

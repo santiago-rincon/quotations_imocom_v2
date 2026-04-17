@@ -1,79 +1,54 @@
-from flet import (
-    Container,
-    Text,
-    Row,
-    MainAxisAlignment,
-    FontWeight,
-    TextField,
-    Column,
-    DataTable,
-    DataColumn,
-    IconButton,
-    Icons,
-    SnackBar,
-    DropdownM2,
-    dropdownm2,
-    Container,
-    Banner,
-    OutlinedButton,
-    Icon,
-    DataCell,
-    DataRow,
-    FilePicker,
-    FilePickerFileType,
-    TextButton,
-    ButtonStyle,
-    Checkbox,
-)
+import flet as ft
 from config.constants import AppConst
 import locale
 import os
 from re import match
 from docxtpl import DocxTemplate
+from json import load as json_load
 
 from utils.utils import get_banner_message
 
 locale.setlocale(locale.LC_ALL, "es_CO.UTF-8")
 
 
-class PcView(Container):
+class PcView(ft.Container):
     def __init__(self):
         super().__init__()
-
+        self.settings = self._load_settings()
         ##### Supplier info #####
-        self.supplier_info = Row(
+        self.supplier_info = ft.Row(
             controls=[
-                Text("Información del proveedor",
-                     size=20, weight=FontWeight.BOLD)
+                ft.Text("Información del proveedor",
+                        size=20, weight=ft.FontWeight.BOLD)
             ],
-            alignment=MainAxisAlignment.CENTER,
+            alignment=ft.MainAxisAlignment.CENTER,
         )
-        self.supplier_field = TextField(
+        self.supplier_field = ft.TextField(
             label="Nombre del proveedor",
             hint_text="JINN FA MACHINE INDUSTRIAL CO.LTD.",
             expand=2,
             border_color="onSurfaceVariant",
         )
-        self.address_supplier_field = TextField(
+        self.address_supplier_field = ft.TextField(
             label="Dirección del proveedor",
             hint_text="NO. 12, HENGCHING LANE, YUANCHUNG",
             expand=2,
             border_color="onSurfaceVariant",
         )
-        self.contact_supplier_field = TextField(
+        self.contact_supplier_field = ft.TextField(
             label="Contacto del proveedor",
             hint_text="JENNY SHEN",
             expand=2,
             border_color="onSurfaceVariant",
         )
-        self.email_supplier_field = TextField(
+        self.email_supplier_field = ft.TextField(
             label="Correo electrónico",
             hint_text="jinnfa@ms18.hinet.net ",
             expand=2,
             border_color="onSurfaceVariant",
         )
 
-        self.row_supplier = Row(
+        self.row_supplier = ft.Row(
             controls=[
                 self.supplier_field,
                 self.address_supplier_field,
@@ -81,52 +56,52 @@ class PcView(Container):
                 self.email_supplier_field,
             ],
             spacing=10,
-            alignment=MainAxisAlignment.SPACE_BETWEEN,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         )
 
         ##### Product info #####
-        self.product_title = Row(
+        self.product_title = ft.Row(
             controls=[
-                Text("Información del producto",
-                     size=20, weight=FontWeight.BOLD)
+                ft.Text("Información del producto",
+                        size=20, weight=ft.FontWeight.BOLD)
             ],
-            alignment=MainAxisAlignment.CENTER,
+            alignment=ft.MainAxisAlignment.CENTER,
         )
-        self.article_code_field = TextField(
+        self.article_code_field = ft.TextField(
             label="P/N or Id. Nr",
             hint_text="M99090259-X11",
             expand=2,
             border_color="onSurfaceVariant",
         )
-        self.description_field = TextField(
+        self.description_field = ft.TextField(
             label="Descripción",
             hint_text="Descripción del item",
             expand=4,
             border_color="onSurfaceVariant",
         )
-        self.quantity_field = TextField(
+        self.quantity_field = ft.TextField(
             label="Cantidad",
             hint_text="1",
             expand=1,
             on_change=self._validate_number,
             border_color="onSurfaceVariant",
         )
-        self.price = TextField(
+        self.price = ft.TextField(
             label="Precio de compra",
             prefix="$",
             expand=1,
             on_change=self._validate_number,
             border_color="onSurfaceVariant",
         )
-        self.add_btn = IconButton(
-            icon=Icons.ADD,
+        self.add_btn = ft.IconButton(
+            icon=ft.Icons.ADD,
             icon_color="green400",
             icon_size=27,
             tooltip="Añadir producto",
-            on_click=self._add_product
+            on_click=self._add_product,
         )
 
-        self.table_row = Row(
+        self.table_row = ft.Row(
             controls=[
                 self.article_code_field,
                 self.description_field,
@@ -135,75 +110,80 @@ class PcView(Container):
                 self.add_btn,
             ],
             spacing=10,
-            alignment=MainAxisAlignment.SPACE_BETWEEN,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         )
 
         ##### Table info product #####
-        self.table_info = DataTable(
+        self.table_info = ft.DataTable(
             columns=[
-                DataColumn(Text("Item"), numeric=True),
-                DataColumn(Text("P/N or Id. Nr")),
-                DataColumn(Text("Cantidad")),
-                DataColumn(Text("Descripción")),
-                DataColumn(Text("Precio de compra (unidad)")),
-                DataColumn(Text("Acciones")),
+                ft.DataColumn(ft.Text("Item"), numeric=True),
+                ft.DataColumn(ft.Text("P/N or Id. Nr")),
+                ft.DataColumn(ft.Text("Cantidad")),
+                ft.DataColumn(ft.Text("Descripción")),
+                ft.DataColumn(ft.Text("Precio de compra (unidad)")),
+                ft.DataColumn(ft.Text("Acciones")),
             ],
             data_row_min_height=48,
             data_row_max_height=float("inf"),
         )
 
-        self.table_info_row = Row(
-            controls=[self.table_info], spacing=10, alignment=MainAxisAlignment.CENTER
+        self.table_info_row = ft.Row(
+            controls=[self.table_info], spacing=10, alignment=ft.MainAxisAlignment.CENTER
         )
 
         ##### PC info #####
-        self.pc_info_title = Row(
+        self.pc_info_title = ft.Row(
             controls=[
-                Text("Información de la compra",
-                     size=20, weight=FontWeight.BOLD)
+                ft.Text("Información de la compra",
+                        size=20, weight=ft.FontWeight.BOLD)
             ],
-            alignment=MainAxisAlignment.CENTER,
+            alignment=ft.MainAxisAlignment.CENTER,
         )
-        self.button_pq = Checkbox(
-            label="", value=True, tooltip="¿Hay cotizacion formal del proveedor?", on_change=self._handle_checkbox)
-        self.ref_of_supplier_field = TextField(
+        self.button_pq = ft.Checkbox(
+            label="",
+            value=True,
+            tooltip="¿Hay cotizacion formal del proveedor?",
+            on_change=self._handle_checkbox,
+        )
+        self.ref_of_supplier_field = ft.TextField(
             label="Referencia del proveedor",
             prefix="PQ-",
             expand=1,
             border_color="onSurfaceVariant",
             on_change=self._validate_number,
         )
-        self.term_of_payment_field = DropdownM2(
+        self.term_of_payment_field = ft.DropdownM2(
             options=[
-                dropdownm2.Option(value) for value in AppConst.terms_of_payment.values()
+                ft.dropdownm2.Option(value) for value in self.settings["terms_of_payment"]
             ],
             expand=1,
             hint_text="Términos de pago",
             border_color="onSurfaceVariant",
         )
-        self.currency_field = DropdownM2(
+        self.currency_field = ft.DropdownM2(
             options=[
-                dropdownm2.Option(value) for value in AppConst.currencies_pv.keys()
+                ft.dropdownm2.Option(f"{value[0]} - {value[1]}")
+                for value in self.settings["currencies_pv"].items()
             ],
             expand=1,
             hint_text="Seleccione la moneda",
             border_color="onSurfaceVariant",
         )
-        self.pc_number_field = TextField(
+        self.pc_number_field = ft.TextField(
             label="PC",
             prefix="PC-",
             expand=1,
             on_change=self._validate_number,
             border_color="onSurfaceVariant",
         )
-        self.incoterms_list = DropdownM2(
-            options=[dropdownm2.Option(value)
-                     for value in AppConst.incoterms.keys()],
+        self.incoterms_list = ft.DropdownM2(
+            options=[ft.dropdownm2.Option(value)
+                     for value in self.settings["incoterms"]],
             expand=1,
             hint_text="Incoterms",
             border_color="onSurfaceVariant",
         )
-        self.pc_info_row = Row(
+        self.pc_info_row = ft.Row(
             controls=[
                 self.button_pq,
                 self.ref_of_supplier_field,
@@ -213,41 +193,48 @@ class PcView(Container):
                 self.incoterms_list,
             ],
             spacing=10,
-            alignment=MainAxisAlignment.SPACE_BETWEEN,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         )
 
         ##### Buttons #####
-        self.send_button = Row(
-            controls=[OutlinedButton(content=Text(
-                "Generar PC", size=18), on_click=self._handle_save_file)],
-            alignment=MainAxisAlignment.START,
+        self.send_button = ft.Row(
+            controls=[
+                ft.OutlinedButton(
+                    content=ft.Text("Generar PC", size=18), on_click=self._handle_save_file
+                )
+            ],
+            alignment=ft.MainAxisAlignment.START,
             expand=1,
         )
-        self.clear_button = Row(
-            controls=[OutlinedButton(content=Text(
-                "Limpiar campos", size=18), on_click=self._clear_fileds)],
-            alignment=MainAxisAlignment.END,
-            expand=1
+        self.clear_button = ft.Row(
+            controls=[
+                ft.OutlinedButton(
+                    content=ft.Text("Limpiar campos", size=18), on_click=self._clear_fileds
+                )
+            ],
+            alignment=ft.MainAxisAlignment.END,
+            expand=1,
         )
-        self.buttons_row = Row(
+        self.buttons_row = ft.Row(
             controls=[self.send_button, self.clear_button],
-            alignment=MainAxisAlignment.SPACE_BETWEEN,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         )
 
-        self.error_text = Text("Error:", color="red400")
+        self.error_text = ft.Text("Error:", color="red400")
 
         ##### Banner #####
-        self.banner = Banner(
+        self.banner = ft.Banner(
             bgcolor="green100",
-            leading=Icon(Icons.CHECK_CIRCLE_SHARP, color="green", size=40),
-            content=Text(
+            leading=ft.Icon(ft.Icons.CHECK_CIRCLE_SHARP,
+                            color="green", size=40),
+            content=ft.Text(
                 value="",
                 color="black",
             ),
             actions=[],
         )
 
-        self.content = Column(
+        self.content = ft.Column(
             controls=[
                 self.supplier_info,
                 self.row_supplier,
@@ -263,7 +250,7 @@ class PcView(Container):
         )
 
     def build(self):
-        return Container(
+        return ft.Container(
             content=self.content,
             expand=True,
         )
@@ -272,7 +259,8 @@ class PcView(Container):
         field = e.control
         if (not field.value.isdigit()) and len(field.value) > 0:
             self.page.show_dialog(
-                SnackBar(Text("⚠ Solo se permiten números"), duration=3000)
+                ft.SnackBar(ft.Text("⚠ Solo se permiten números"),
+                            duration=3000)
             )
             field.value = field.value[:-1]
             self.page.update()
@@ -304,7 +292,12 @@ class PcView(Container):
         quantity = self.quantity_field.value
         selling_price = self.price.value
         try:
-            if len(description) > 0 and len(article) > 0 and len(quantity) > 0 and len(selling_price) > 0:
+            if (
+                len(description) > 0
+                and len(article) > 0
+                and len(quantity) > 0
+                and len(selling_price) > 0
+            ):
                 product.append(article)
                 product.append(int(quantity))
                 product.append(description)
@@ -316,20 +309,20 @@ class PcView(Container):
         except Exception as E:
             print(E)
             self.page.show_dialog(
-                SnackBar(Text("⚠ Todos los campos son obligatorios"),
-                         duration=3000)
+                ft.SnackBar(
+                    ft.Text("⚠ Todos los campos son obligatorios"), duration=3000)
             )
             return
         self.table_info.rows.append(
-            DataRow(
-                cells=[DataCell(Text(prod, selectable=True))
+            ft.DataRow(
+                cells=[ft.DataCell(ft.Text(prod, selectable=True))
                        for prod in product]
                 + [
-                    DataCell(
-                        Row(
+                    ft.DataCell(
+                        ft.Row(
                             controls=[
-                                IconButton(
-                                    icon=Icons.DELETE_FOREVER_ROUNDED,
+                                ft.IconButton(
+                                    icon=ft.Icons.DELETE_FOREVER_ROUNDED,
                                     icon_color="red400",
                                     icon_size=20,
                                     tooltip="Eliminar producto",
@@ -337,7 +330,7 @@ class PcView(Container):
                                     key=id,
                                 )
                             ],
-                            alignment=MainAxisAlignment.CENTER,
+                            alignment=ft.MainAxisAlignment.CENTER,
                         )
                     )
                 ]
@@ -356,15 +349,15 @@ class PcView(Container):
                 self.table_info.rows.remove(row)
                 deleted = True
                 continue
-            if (deleted):
+            if deleted:
                 row.cells[0].content.value = int(
                     row.cells[0].content.value) - 1
         self.page.update()
 
     async def _handle_save_file(self, e):
         try:
-            path = await FilePicker().save_file(
-                file_type=FilePickerFileType.CUSTOM,
+            path = await ft.FilePicker().save_file(
+                file_type=ft.FilePickerFileType.CUSTOM,
                 file_name=f"PC-{self.pc_number_field.value}-{self.supplier_field.value.upper()}",
                 allowed_extensions=["docx"],
             )
@@ -382,7 +375,9 @@ class PcView(Container):
                 else:
                     ref_of_supplier = " :" + self.ref_of_supplier_field.value
                 context = {
-                    "pc_number": self.pc_number_field.value.zfill(9),
+                    "pc_number": self.pc_number_field.value.zfill(
+                        self.settings["lenght_pc_number"]
+                    ),
                     "date": AppConst.current_date,
                     "supplier": self.supplier_field.value.upper(),
                     "address": self.address_supplier_field.value.upper(),
@@ -391,10 +386,10 @@ class PcView(Container):
                     "terms_of_payment": self.term_of_payment_field.value.upper(),
                     "ref_of_supplier": ref_of_supplier,
                     "incoterms": self.incoterms_list.value.upper(),
-                    "contact_imocom": AppConst.name["contact"].upper(),
-                    "email_imocom": AppConst.name["email_imocom"].lower(),
-                    "dhl": AppConst.dhl,
-                    "currency": self.currency_field.value,
+                    "contact_imocom": self.settings["name"]["contact"].upper(),
+                    "email_imocom": self.settings["name"]["email_imocom"].lower(),
+                    "dhl": self.settings["dhl"],
+                    "currency": self.currency_field.value.split(" - ")[0],
                 }
             except Exception as E:
                 print(f"Error al construir el contexto: {E}")
@@ -402,7 +397,7 @@ class PcView(Container):
             for value in context.values():
                 if len(value) == 0:
                     raise Exception("None")
-            doc = DocxTemplate("src/assets/schema_pc.docx")  # development path
+            doc = DocxTemplate("assets/schema_pc.docx")  # development path
             # doc = DocxTemplate('assets/schema_pc.docx')  # production path
             products = []
             total_send = 0
@@ -416,19 +411,27 @@ class PcView(Container):
                 }
                 if match(r"^\$\s?\d{1,3}(?:\.\d{3})*$", product["selling_price"][:-3]):
                     total_selling_price = int(
-                        product["selling_price"].replace(
-                            ".", "").replace("$ ", "").replace(",00", "")
+                        product["selling_price"]
+                        .replace(".", "")
+                        .replace("$ ", "")
+                        .replace(",00", "")
                     ) * int(product["quantity"])
                     product["total_selling_price"] = locale.currency(
-                        total_selling_price, grouping=True)
+                        total_selling_price, grouping=True
+                    )
                     total_send += total_selling_price
-                elif match(r"^\$\s?\d{1,3}(?:\,\d{3})*$", product["selling_price"][:-3]):
+                elif match(
+                    r"^\$\s?\d{1,3}(?:\,\d{3})*$", product["selling_price"][:-3]
+                ):
                     total_selling_price = int(
-                        product["selling_price"].replace(
-                            ",", "").replace("$ ", "").replace(".00", "")
+                        product["selling_price"]
+                        .replace(",", "")
+                        .replace("$ ", "")
+                        .replace(".00", "")
                     ) * int(product["quantity"])
                     product["total_selling_price"] = locale.currency(
-                        total_selling_price, grouping=True)
+                        total_selling_price, grouping=True
+                    )
                     total_send += total_selling_price
                 products.append(product)
             context.update(
@@ -445,24 +448,24 @@ class PcView(Container):
             banner_controls = []
             if self.page.platform.value != "windows":
                 banner_controls.append(
-                    TextButton(
+                    ft.TextButton(
                         content="Ok",
-                        style=ButtonStyle(color="blue"),
+                        style=ft.ButtonStyle(color="blue"),
                         on_click=lambda _: self.page.pop_dialog(),
                     )
                 )
             else:
                 banner_controls.append(
-                    Row(
+                    ft.Row(
                         controls=[
-                            TextButton(
+                            ft.TextButton(
                                 content="Si",
-                                style=ButtonStyle(color="blue"),
+                                style=ft.ButtonStyle(color="blue"),
                                 on_click=lambda _: self._open_file(path),
                             ),
-                            TextButton(
+                            ft.TextButton(
                                 content="No",
-                                style=ButtonStyle(color="blue"),
+                                style=ft.ButtonStyle(color="blue"),
                                 on_click=lambda _: self.page.pop_dialog(),
                             ),
                         ],
@@ -480,8 +483,8 @@ class PcView(Container):
                 self.page.add(self.error_text)
                 self.page.update()
             self.page.show_dialog(
-                SnackBar(
-                    Text(
+                ft.SnackBar(
+                    ft.Text(
                         "⚠ La ventana de guardado fue cerrada, o aún faltan datos para generar la PC"
                     ),
                     duration=5000,
@@ -504,3 +507,8 @@ class PcView(Container):
             self.ref_of_supplier_field.prefix = "PQ-"
         else:
             self.ref_of_supplier_field.prefix = ""
+
+    def _load_settings(self):
+        with open("config/settings.json", "r", encoding="utf-8") as f:
+            settings = json_load(f)
+            return settings
