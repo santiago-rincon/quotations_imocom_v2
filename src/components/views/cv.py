@@ -400,7 +400,7 @@ class CvView(ft.Container):
             except:
                 pass
             context = {
-                "client": self.client_field.value.upper(),
+                "client": self.client_field.value.upper().replace("&", "&amp;"),
                 "cv": self.cv_field.value,
                 "date": AppConst.current_date,
                 "contact": self.contact_field.value.upper(),
