@@ -5,11 +5,9 @@ from components.LeftBar import LeftBar
 from components.views.cv import CvView
 
 from config.constants import AppConst
-import os
 
 
 def main(page: ft.Page):
-    print(os.getcwd())
     page.title = "Cotizaciones Imocom mecanizado"
     page.padding = ft.Padding(top=0, bottom=10, left=10, right=10)
     page.appbar = TopBar("Cotizaciones Imocom")

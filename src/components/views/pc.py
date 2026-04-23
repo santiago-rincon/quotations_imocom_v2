@@ -150,7 +150,7 @@ class PcView(ft.Container):
             prefix="PQ-",
             expand=1,
             border_color="onSurfaceVariant",
-            on_change=self._validate_number,
+            on_change=lambda e: self._validate_number(e, True),
         )
         self.term_of_payment_field = ft.DropdownM2(
             options=[
@@ -173,7 +173,7 @@ class PcView(ft.Container):
             label="PC",
             prefix="PC-",
             expand=1,
-            on_change=self._validate_number,
+            on_change=lambda e: self._validate_number(e, True),
             border_color="onSurfaceVariant",
         )
         self.incoterms_list = ft.DropdownM2(
@@ -255,15 +255,25 @@ class PcView(ft.Container):
             expand=True,
         )
 
-    def _validate_number(self, e):
+    def _validate_number(self, e, is_integer=False):
         field = e.control
-        if (not field.value.isdigit()) and len(field.value) > 0:
+        is_number = match(r'^(\d+(\.\d*)?)$', field.value)
+        if (not is_number):
             self.page.show_dialog(
                 ft.SnackBar(ft.Text("⚠ Solo se permiten números"),
                             duration=3000)
             )
             field.value = field.value[:-1]
             self.page.update()
+            return
+        if is_integer and field.value[-1] == ".":
+            self.page.show_dialog(
+                ft.SnackBar(ft.Text("⚠ Solo se permiten números enteros"),
+                            duration=3000)
+            )
+            field.value = field.value[:-1]
+            self.page.update()
+            return
 
     def _clear_fileds(self):
         self.supplier_field.value = ""
@@ -298,11 +308,18 @@ class PcView(ft.Container):
                 and len(quantity) > 0
                 and len(selling_price) > 0
             ):
+                quantity_array = quantity.split(".")
+                quantity_format = None
+                if len(quantity_array) > 1:
+                    quantity_format = float(quantity) if int(
+                        quantity_array[1]) > 0 else int(quantity)
+                else:
+                    quantity_format = int(quantity)
                 product.append(article)
-                product.append(int(quantity))
+                product.append(quantity_format)
                 product.append(description)
                 product.append(locale.currency(
-                    int(selling_price), grouping=True))
+                    float(selling_price), grouping=True))
 
             else:
                 raise Exception("Data incomplete")
@@ -397,8 +414,7 @@ class PcView(ft.Container):
             for value in context.values():
                 if len(value) == 0:
                     raise Exception("None")
-            doc = DocxTemplate("assets/schema_pc.docx")  # development path
-            # doc = DocxTemplate('assets/schema_pc.docx')  # production path
+            doc = DocxTemplate("assets/schema_pc.docx")
             products = []
             total_send = 0
             for row in self.table_info.rows:
@@ -409,30 +425,14 @@ class PcView(ft.Container):
                     "description": row.cells[3].content.value,
                     "selling_price": row.cells[4].content.value,
                 }
-                if match(r"^\$\s?\d{1,3}(?:\.\d{3})*$", product["selling_price"][:-3]):
-                    total_selling_price = int(
-                        product["selling_price"]
-                        .replace(".", "")
-                        .replace("$ ", "")
-                        .replace(",00", "")
-                    ) * int(product["quantity"])
-                    product["total_selling_price"] = locale.currency(
-                        total_selling_price, grouping=True
-                    )
-                    total_send += total_selling_price
-                elif match(
-                    r"^\$\s?\d{1,3}(?:\,\d{3})*$", product["selling_price"][:-3]
-                ):
-                    total_selling_price = int(
-                        product["selling_price"]
-                        .replace(",", "")
-                        .replace("$ ", "")
-                        .replace(".00", "")
-                    ) * int(product["quantity"])
-                    product["total_selling_price"] = locale.currency(
-                        total_selling_price, grouping=True
-                    )
-                    total_send += total_selling_price
+
+                total_selling_price = locale.atof(product["selling_price"].strip(
+                    "$").strip()) * float(product["quantity"])
+                product["total_selling_price"] = locale.currency(
+                    total_selling_price, grouping=True
+                )
+                total_send += total_selling_price
+
                 products.append(product)
             context.update(
                 {

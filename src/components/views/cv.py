@@ -35,7 +35,7 @@ class CvView(ft.Container):
         self.cv_field = ft.TextField(
             label="Número de CV",
             prefix="CV-",
-            on_change=self._validate_number,
+            on_change=lambda e: self._validate_number(e, True),
             expand=1,
             border_color="onSurfaceVariant",
         )
@@ -244,15 +244,25 @@ class CvView(ft.Container):
     def build(self):
         return ft.Container(content=self.content, expand=True)
 
-    def _validate_number(self, e):
+    def _validate_number(self, e, is_integer=False):
         field = e.control
-        if (not field.value.isdigit()) and len(field.value) > 0:
+        is_number = match(r'^(\d+(\.\d*)?)$', field.value)
+        if (not is_number):
             self.page.show_dialog(
                 ft.SnackBar(ft.Text("⚠ Solo se permiten números"),
                             duration=3000)
             )
             field.value = field.value[:-1]
             self.page.update()
+            return
+        if is_integer and field.value[-1] == ".":
+            self.page.show_dialog(
+                ft.SnackBar(ft.Text("⚠ Solo se permiten números enteros"),
+                            duration=3000)
+            )
+            field.value = field.value[:-1]
+            self.page.update()
+            return
 
     def _handle_quotation_type_aux(self):
         quotation_type = self.quotation_type_field.value
@@ -321,17 +331,23 @@ class CvView(ft.Container):
         unit = self.unit_field.value.upper()
         selling_price = self.selling_price.value
         try:
-            if len(description) > 0 and len(quantity) > 0 and len(unit) > 0:
+            if len(description) > 0 and len(quantity) > 0 and len(unit) > 0 and len(id) > 0 and len(selling_price) > 0:
+                quantity_array = quantity.split(".")
+                quantity_format = None
+                if len(quantity_array) > 1:
+                    quantity_format = float(quantity) if int(
+                        quantity_array[1]) > 0 else int(quantity)
+                else:
+                    quantity_format = int(quantity)
                 product.append(description)
                 product.append(AppConst.current_date)
-                product.append(int(quantity))
+                product.append(quantity_format)
                 product.append(unit)
                 product.append(locale.currency(
-                    int(selling_price), grouping=True)[:-3])
+                    float(selling_price), grouping=True))
                 product.append(
-                    locale.currency(int(quantity) * int(selling_price), grouping=True)[
-                        :-3
-                    ]
+                    locale.currency(quantity_format *
+                                    float(selling_price), grouping=True)
                 )
             else:
                 raise Exception("Data incomplete")
@@ -395,6 +411,8 @@ class CvView(ft.Container):
                 file_name=f"CV-{self.cv_field.value}-{self.client_field.value.upper()}",
                 allowed_extensions=["docx"],
             )
+            if path is None:
+                raise Exception("None")
             try:
                 self.page.remove(self.error_text)
             except:
@@ -415,8 +433,7 @@ class CvView(ft.Container):
             for value in context.values():
                 if len(value) == 0:
                     raise Exception("Data incomplete")
-            doc = DocxTemplate("assets/schema.docx")  # development path
-            # doc = DocxTemplate('assets/schema.docx')  # production path
+            doc = DocxTemplate("assets/schema.docx")
             products = []
             total_send = 0
             title_header, f_time = get_final_time(
@@ -432,14 +449,8 @@ class CvView(ft.Container):
                     "selling_price": row.cells[5].content.value,
                     "amount": row.cells[6].content.value,
                 }
-                if match(r"^\$\s?\d{1,3}(?:\.\d{3})*$", product["amount"]):
-                    total_send += int(
-                        product["amount"].replace(".", "").replace("$ ", "")
-                    )
-                elif match(r"^\$\s?\d{1,3}(?:\,\d{3})*$", product["amount"]):
-                    total_send += int(
-                        product["amount"].replace(",", "").replace("$ ", "")
-                    )
+                total_send += locale.atof(product["amount"].strip(
+                    "$").strip())
                 products.append(product)
             total = total_send
             taxes = total * 0.19
@@ -453,8 +464,8 @@ class CvView(ft.Container):
                 {
                     "title_header": title_header,
                     "products": products,
-                    "total_send": locale.currency(total_send, grouping=True)[:-3],
-                    "total": locale.currency(total, grouping=True)[:-3],
+                    "total_send": locale.currency(total_send, grouping=True),
+                    "total": locale.currency(total, grouping=True),
                     "taxes": locale.currency(taxes, grouping=True),
                     "rounded": rounded,
                     "final_price": locale.currency(final_price, grouping=True),
