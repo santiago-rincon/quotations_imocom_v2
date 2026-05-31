@@ -5,7 +5,7 @@ from utils.utils import get_final_time, get_banner_message
 import locale
 import os
 from re import match
-from json import load as json_load
+from json import load as json_load, dump as json_dump
 
 locale.setlocale(locale.LC_ALL, "es_CO.UTF-8")
 
@@ -20,11 +20,16 @@ class CvView(ft.Container):
                               size=20, weight=ft.FontWeight.BOLD)],
             alignment=ft.MainAxisAlignment.CENTER,
         )
-        self.client_field = ft.TextField(
+        self.client_field = ft.Dropdown(
+            expand=2,
             label="Cliente",
             hint_text="Ingresa el nombre del cliente",
-            expand=2,
             border_color="onSurfaceVariant",
+            editable=True,
+            options=[
+                ft.DropdownOption(key=i, text=client["name"]) for i, client in enumerate(self.settings["clients"])
+            ],
+            on_select=self._handle_dropdown,
         )
         self.contact_field = ft.TextField(
             label="Contacto del cliente",
@@ -61,6 +66,17 @@ class CvView(ft.Container):
             on_change=self._handle_quotation_type_aux,
             value=AppConst.quotations_types["IMPORT"],
             border_color="onSurfaceVariant",
+        )
+        self.add_client_button = ft.Row(
+            controls=[
+                ft.OutlinedButton(
+                    content=ft.Text("Añadir cliente", size=18),
+                    on_click=self._handle_save_client,
+                )
+            ],
+            alignment=ft.MainAxisAlignment.START,
+            expand=1,
+            visible=False,
         )
         self.row1 = ft.Row(
             controls=[self.client_field, self.contact_field, self.cv_field],
@@ -230,6 +246,7 @@ class CvView(ft.Container):
                 self.client_info,
                 self.row1,
                 self.row2,
+                self.add_client_button,
                 self.product_title,
                 self.table_row,
                 self.table_info_row,
@@ -317,6 +334,8 @@ class CvView(ft.Container):
         self.final_time.value = ""
         self.currency_field.value = ""
         self.table_info.rows.clear()
+        self.add_client_button.visible = False
+        self.page.pop_dialog()
         self.page.update()
 
     def _add_product(self):
@@ -408,7 +427,7 @@ class CvView(ft.Container):
         try:
             path = await ft.FilePicker().save_file(
                 file_type=ft.FilePickerFileType.CUSTOM,
-                file_name=f"CV-{self.cv_field.value}-{self.client_field.value.upper()}",
+                file_name=f"CV-{self.cv_field.value}-{self.client_field.text.upper()}",
                 allowed_extensions=["docx"],
             )
             if path is None:
@@ -418,7 +437,7 @@ class CvView(ft.Container):
             except:
                 pass
             context = {
-                "client": self.client_field.value.upper().replace("&", "&amp;"),
+                "client": self.client_field.text.upper().replace("&", "&amp;"),
                 "cv": self.cv_field.value,
                 "date": AppConst.current_date,
                 "contact": self.contact_field.value.upper(),
@@ -537,3 +556,71 @@ class CvView(ft.Container):
         with open("config/settings.json", "r", encoding="utf-8") as f:
             settings = json_load(f)
             return settings
+
+    def _handle_dropdown(self, e):
+        value = e.control.value
+        if value is not None:
+            self.add_client_button.visible = False
+            addr = self.settings["clients"][int(value)]["address"]
+            contact = self.settings["clients"][int(value)]["contact"]
+            location = self.settings["clients"][int(value)]["location"]
+            self.address_field.value = addr
+            self.contact_field.value = contact
+            self.location_field.value = location
+        else:
+            self.add_client_button.visible = True
+            self.address_field.value = ""
+            self.contact_field.value = ""
+            self.location_field.value = ""
+        self.page.update()
+
+    def _handle_save_client(self, e):
+        client_name = self.client_field.text
+        address = self.address_field.value
+        contact = self.contact_field.value
+        location = self.location_field.value
+        if not client_name or not address or not contact or not location:
+            self.page.show_dialog(
+                ft.SnackBar(
+                    ft.Text(
+                        "⚠ Todos los campos del cliente son obligatorios para añadir un nuevo cliente"),
+                    duration=3000,
+                )
+            )
+            return
+        current_settings = self.settings.copy()
+        new_client = {
+            "name": client_name.upper(),
+            "address": address.upper(),
+            "contact": contact.upper(),
+            "location": location.upper(),
+        }
+        current_settings["clients"].append(new_client)
+        try:
+            with open("config/settings.json", "w", encoding="utf-8") as f:
+                json_dump(current_settings, f, indent=4, ensure_ascii=False)
+            self.page.show_dialog(
+                ft.SnackBar(
+                    ft.Text(
+                        "✔ El cliente fue añadido con exito"
+                    ),
+                    duration=2000,
+                )
+            )
+        except Exception as E:
+            print(E)
+            self.page.show_dialog(
+                ft.SnackBar(
+                    ft.Text(
+                        "❌ Error al añadir el cliente"
+                    ),
+                    duration=2000,
+                )
+            )
+        self.settings = self._load_settings()
+        self.add_client_button.visible = False
+        self.client_field.options = [
+            ft.DropdownOption(key=i, text=client["name"])
+            for i, client in enumerate(self.settings["clients"])
+        ]
+        self.page.update()

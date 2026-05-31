@@ -291,6 +291,99 @@ class SettingsView(ft.Container):
             ]
         )
 
+        ##### clients #####
+        self.title_clients = ft.Row(
+            controls=[ft.Text("Clientes", size=20,
+                              weight=ft.FontWeight.BOLD)],
+            alignment=ft.MainAxisAlignment.START,
+        )
+        self.client_name = ft.TextField(
+            label="Nombre del cliente",
+            hint_text="Nombre del cliente",
+            expand=1,
+            border_color="onSurfaceVariant",
+        )
+        self.client_address = ft.TextField(
+            label="Dirección del cliente",
+            hint_text="Dirección del cliente",
+            expand=1,
+            border_color="onSurfaceVariant",
+        )
+        self.client_contact = ft.TextField(
+            label="Contacto del cliente",
+            hint_text="Contacto del cliente",
+            expand=1,
+            border_color="onSurfaceVariant",
+        )
+        self.client_location = ft.TextField(
+            label="Ubicación del cliente",
+            hint_text="Ubicación del cliente",
+            expand=1,
+            border_color="onSurfaceVariant",
+        )
+        self.add_btn_clients = ft.IconButton(
+            icon=ft.Icons.ADD,
+            icon_color="green400",
+            icon_size=27,
+            tooltip="Añadir cliente",
+            on_click=self._add_client
+        )
+        self.row_clients = ft.Row(
+            controls=[
+                self.client_name,
+                self.client_address,
+                self.client_contact,
+                self.client_location,
+                self.add_btn_clients,
+            ],
+            spacing=20,
+        )
+
+        ##### Table info clients #####
+        self.table_info_clients = ft.Row(
+            controls=[
+                ft.DataTable(
+                    columns=[
+                        ft.DataColumn(ft.Text("Nombre del cliente")),
+                        ft.DataColumn(ft.Text("Dirección del cliente")),
+                        ft.DataColumn(ft.Text("Contacto del cliente")),
+                        ft.DataColumn(ft.Text("Ubicación del cliente")),
+                        ft.DataColumn(ft.Text("Acciones")),
+                    ],
+                    rows=[
+                        ft.DataRow(
+                            cells=[
+                                ft.DataCell(ft.Text(client["name"])),
+                                ft.DataCell(ft.Text(client["address"])),
+                                ft.DataCell(ft.Text(client["contact"])),
+                                ft.DataCell(ft.Text(client["location"])),
+                                ft.DataCell(
+                                    ft.Row(
+                                        controls=[
+                                            ft.IconButton(
+                                                icon=ft.Icons.DELETE_FOREVER_ROUNDED,
+                                                icon_color="red400",
+                                                icon_size=20,
+                                                tooltip="Eliminar cliente",
+                                                on_click=self._delete_client,
+                                                key=client["name"],
+                                            ),
+                                        ],
+                                        alignment=ft.MainAxisAlignment.CENTER,
+                                    )
+                                ),
+                            ]
+                        )
+                        for client in self.settings["clients"]
+                    ],
+                    data_row_min_height=48,
+                    data_row_max_height=float("inf"),
+                )
+            ],
+            spacing=10,
+            alignment=ft.MainAxisAlignment.CENTER,
+        )
+
         self.cv_container = ft.Column(
             controls=[
                 self.title_currencies_cv,
@@ -302,12 +395,15 @@ class SettingsView(ft.Container):
                 self.title_pay_types_stock,
                 self.row_pay_types_stock,
                 self.list_pay_types_stock,
+                self.title_clients,
+                self.row_clients,
+                self.table_info_clients,
             ],
             spacing=24,
             expand=True,
         )
 
-        ##### Imocom Information #####
+        ##### PC Information #####
         self.title_imocom_info = ft.Row(
             controls=[ft.Text("Información para la PC",
                               size=20, weight=ft.FontWeight.BOLD)],
@@ -463,6 +559,99 @@ class SettingsView(ft.Container):
             ]
         )
 
+        ##### Suppliers #####
+        self.title_suppliers = ft.Row(
+            controls=[ft.Text("Proveedores", size=20,
+                              weight=ft.FontWeight.BOLD)],
+            alignment=ft.MainAxisAlignment.START,
+        )
+        self.supplier_name = ft.TextField(
+            label="Nombre del proveedor",
+            hint_text="Nombre del proveedor",
+            expand=1,
+            border_color="onSurfaceVariant",
+        )
+        self.supplier_address = ft.TextField(
+            label="Dirección del proveedor",
+            hint_text="Dirección del proveedor",
+            expand=1,
+            border_color="onSurfaceVariant",
+        )
+        self.supplier_contact = ft.TextField(
+            label="Contacto del proveedor",
+            hint_text="Contacto del proveedor",
+            expand=1,
+            border_color="onSurfaceVariant",
+        )
+        self.supplier_email = ft.TextField(
+            label="Email del proveedor",
+            hint_text="Email del proveedor",
+            expand=1,
+            border_color="onSurfaceVariant",
+        )
+        self.add_btn_suppliers = ft.IconButton(
+            icon=ft.Icons.ADD,
+            icon_color="green400",
+            icon_size=27,
+            tooltip="Añadir proveedor",
+            on_click=self._add_suplier
+        )
+        self.row_suppliers = ft.Row(
+            controls=[
+                self.supplier_name,
+                self.supplier_address,
+                self.supplier_contact,
+                self.supplier_email,
+                self.add_btn_suppliers,
+            ],
+            spacing=20,
+        )
+
+        ##### Table info suppliers #####
+        self.table_info_suppliers = ft.Row(
+            controls=[
+                ft.DataTable(
+                    columns=[
+                        ft.DataColumn(ft.Text("Nombre del proveedor")),
+                        ft.DataColumn(ft.Text("Dirección del proveedor")),
+                        ft.DataColumn(ft.Text("Contacto del proveedor")),
+                        ft.DataColumn(ft.Text("Email del proveedor")),
+                        ft.DataColumn(ft.Text("Acciones")),
+                    ],
+                    rows=[
+                        ft.DataRow(
+                            cells=[
+                                ft.DataCell(ft.Text(supplier["name"])),
+                                ft.DataCell(ft.Text(supplier["address"])),
+                                ft.DataCell(ft.Text(supplier["contact"])),
+                                ft.DataCell(ft.Text(supplier["email"])),
+                                ft.DataCell(
+                                    ft.Row(
+                                        controls=[
+                                            ft.IconButton(
+                                                icon=ft.Icons.DELETE_FOREVER_ROUNDED,
+                                                icon_color="red400",
+                                                icon_size=20,
+                                                tooltip="Eliminar proveedor",
+                                                on_click=self._delete_supplier,
+                                                key=supplier["name"],
+                                            ),
+                                        ],
+                                        alignment=ft.MainAxisAlignment.CENTER,
+                                    )
+                                ),
+                            ]
+                        )
+                        for supplier in self.settings["providers"]
+                    ],
+                    data_row_min_height=48,
+                    data_row_max_height=float("inf"),
+                )
+            ],
+            spacing=10,
+            alignment=ft.MainAxisAlignment.CENTER,
+        )
+
         self.pv_container = ft.Column(
             controls=[
                 self.title_imocom_info,
@@ -473,6 +662,9 @@ class SettingsView(ft.Container):
                 self.title_terms_payment,
                 self.row_terms_payment,
                 self.list_terms_payment,
+                self.title_suppliers,
+                self.row_suppliers,
+                self.table_info_suppliers,
             ],
             spacing=24,
             expand=True,
@@ -701,7 +893,129 @@ class SettingsView(ft.Container):
                 break
         self.page.update()
 
+    def _add_suplier(self):
+        name = self.supplier_name.value.upper()
+        address = self.supplier_address.value.upper()
+        contact = self.supplier_contact.value.upper()
+        email = self.supplier_email.value
+        try:
+            if len(name) > 0 and len(address) > 0 and len(contact) > 0 and len(email) > 0:
+                supplier = {
+                    "name": name,
+                    "address": address,
+                    "contact": contact,
+                    "email": email
+                }
+            else:
+                supplier = {}
+                raise ValueError("Todos los campos son obligatorios")
+        except Exception as E:
+            print(E)
+            self.page.show_dialog(
+                ft.SnackBar(
+                    ft.Text("⚠ Todos los campos son obligatorios"), duration=3000)
+            )
+            return
+        self.table_info_suppliers.controls[0].rows.append(
+            ft.DataRow(
+                cells=[ft.DataCell(ft.Text(supplier, selectable=True))
+                       for supplier in supplier.values()]
+                + [
+                    ft.DataCell(
+                        ft.Row(
+                            controls=[
+                                ft.IconButton(
+                                    icon=ft.Icons.DELETE_FOREVER_ROUNDED,
+                                    icon_color="red400",
+                                    icon_size=20,
+                                    tooltip="Eliminar proveedor",
+                                    on_click=self._delete_supplier,
+                                    key=name,
+                                ),
+                            ],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                        )
+                    ),
+                ]
+            )
+        )
+        self.supplier_name.value = ""
+        self.supplier_address.value = ""
+        self.supplier_contact.value = ""
+        self.supplier_email.value = ""
+        self.page.update()
+
+    def _delete_supplier(self, e):
+        for row in self.table_info_suppliers.controls[0].rows.copy():
+            if row.cells[4].content.controls[0].key == e.control.key:
+                self.table_info_suppliers.controls[0].rows.remove(row)
+                break
+        self.page.update()
+
+    def _add_client(self):
+        name = self.client_name.value.upper()
+        address = self.client_address.value.upper()
+        contact = self.client_contact.value.upper()
+        location = self.client_location.value.upper()
+        try:
+            if len(name) > 0 and len(address) > 0 and len(contact) > 0 and len(location) > 0:
+                client = {
+                    "name": name,
+                    "address": address,
+                    "contact": contact,
+                    "location": location
+                }
+            else:
+                client = {}
+                raise ValueError("Todos los campos son obligatorios")
+        except Exception as E:
+            print(E)
+            self.page.show_dialog(
+                ft.SnackBar(
+                    ft.Text("⚠ Todos los campos son obligatorios"), duration=3000)
+            )
+            return
+        self.table_info_clients.controls[0].rows.append(
+            ft.DataRow(
+                cells=[ft.DataCell(ft.Text(client, selectable=True))
+                       for client in client.values()]
+                + [
+                    ft.DataCell(
+                        ft.Row(
+                            controls=[
+                                ft.IconButton(
+                                    icon=ft.Icons.DELETE_FOREVER_ROUNDED,
+                                    icon_color="red400",
+                                    icon_size=20,
+                                    tooltip="Eliminar cliente",
+                                    on_click=self._delete_client,
+                                    key=name,
+                                ),
+                            ],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                        )
+                    ),
+                ]
+            )
+        )
+        self.client_name.value = ""
+        self.client_address.value = ""
+        self.client_contact.value = ""
+        self.client_location.value = ""
+        self.page.update()
+
+    def _delete_client(self, e):
+        for row in self.table_info_clients.controls[0].rows.copy():
+            if row.cells[4].content.controls[0].key == e.control.key:
+                self.table_info_clients.controls[0].rows.remove(row)
+                break
+        self.page.update()
+
     def _handle_save_file(self, e):
+        try:
+            self.page.pop_dialog()
+        except:
+            pass
         current_settings = self.settings.copy()
         current_settings["name"]["contact"] = (
             self.name_contact.value.capitalize()
@@ -752,38 +1066,40 @@ class SettingsView(ft.Container):
         current_settings["terms_of_payment"] = [
             item.title for item in self.list_terms_payment.controls
         ]
+        current_settings["providers"] = [
+            {
+                "name": row.cells[0].content.value,
+                "address": row.cells[1].content.value,
+                "contact": row.cells[2].content.value,
+                "email": row.cells[3].content.value,
+            }
+            for row in self.table_info_suppliers.controls[0].rows
+        ]
+        current_settings["clients"] = [
+            {
+                "name": row.cells[0].content.value,
+                "address": row.cells[1].content.value,
+                "contact": row.cells[2].content.value,
+                "email": row.cells[3].content.value,
+            }
+            for row in self.table_info_clients.controls[0].rows
+        ]
         try:
             with open("config/settings.json", "w", encoding="utf-8") as f:
                 json_dump(current_settings, f, indent=4, ensure_ascii=False)
-            self.banner.content.value = "Configuración guardada exitosamente"
-            self.banner.bgcolor = "green100"
-            self.banner.actions = [
-                ft.Row(
-                    controls=[
-                        ft.TextButton(
-                            content="Ok",
-                            style=ft.ButtonStyle(color="blue"),
-                            on_click=lambda _: self.page.pop_dialog(),
-                        ),
-                    ],
-                    expand=True,
+            self.page.show_dialog(
+                ft.SnackBar(
+                    ft.Text(
+                        "✔ Configuración guardada correctamente"),
+                    duration=3000,
                 )
-            ]
+            )
         except Exception as E:
             print(E)
-            self.banner.content.value = "Error al guardar la configuración"
-            self.banner.bgcolor = "red100"
-            self.banner.leading.icon = ft.Icons.CANCEL
-            self.banner.actions = [
-                ft.Row(
-                    controls=[
-                        ft.TextButton(
-                            content="Ok",
-                            style=ft.ButtonStyle(color="blue"),
-                            on_click=lambda _: self.page.pop_dialog(),
-                        ),
-                    ],
-                    expand=True,
+            self.page.show_dialog(
+                ft.SnackBar(
+                    ft.Text(
+                        "✔ Configuración guardada correctamente"),
+                    duration=3000,
                 )
-            ]
-        self.page.show_dialog(self.banner)
+            )

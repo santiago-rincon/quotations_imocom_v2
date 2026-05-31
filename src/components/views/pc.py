@@ -4,7 +4,7 @@ import locale
 import os
 from re import match
 from docxtpl import DocxTemplate
-from json import load as json_load
+from json import load as json_load, dump as json_dump
 
 from utils.utils import get_banner_message
 
@@ -23,11 +23,16 @@ class PcView(ft.Container):
             ],
             alignment=ft.MainAxisAlignment.CENTER,
         )
-        self.supplier_field = ft.TextField(
-            label="Nombre del proveedor",
-            hint_text="JINN FA MACHINE INDUSTRIAL CO.LTD.",
+        self.supplier_field = ft.Dropdown(
             expand=2,
+            label="Nombre del proveedor",
+            hint_text="Nombre del proveedor",
             border_color="onSurfaceVariant",
+            editable=True,
+            options=[
+                ft.DropdownOption(key=i, text=provider["name"]) for i, provider in enumerate(self.settings["providers"])
+            ],
+            on_select=self._handle_dropdown,
         )
         self.address_supplier_field = ft.TextField(
             label="Dirección del proveedor",
@@ -57,6 +62,20 @@ class PcView(ft.Container):
             ],
             spacing=10,
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        )
+
+        ##### Button to add provider #####
+
+        self.add_provider_button = ft.Row(
+            controls=[
+                ft.OutlinedButton(
+                    content=ft.Text("Añadir proveedor", size=18),
+                    on_click=self._handle_save_provider
+                )
+            ],
+            alignment=ft.MainAxisAlignment.START,
+            expand=1,
+            visible=False,
         )
 
         ##### Product info #####
@@ -238,6 +257,7 @@ class PcView(ft.Container):
             controls=[
                 self.supplier_info,
                 self.row_supplier,
+                self.add_provider_button,
                 self.product_title,
                 self.table_row,
                 self.table_info_row,
@@ -291,6 +311,8 @@ class PcView(ft.Container):
         self.pc_number_field.value = ""
         self.incoterms_list.value = None
         self.button_pq.value = True
+        self.add_provider_button.visible = False
+        self.page.pop_dialog()
         self.page.update()
 
     def _add_product(self):
@@ -373,17 +395,17 @@ class PcView(ft.Container):
 
     async def _handle_save_file(self, e):
         try:
-            path = await ft.FilePicker().save_file(
-                file_type=ft.FilePickerFileType.CUSTOM,
-                file_name=f"PC-{self.pc_number_field.value}-{self.supplier_field.value.upper()}",
-                allowed_extensions=["docx"],
-            )
-            if path is None:
-                raise Exception("None")
             try:
                 self.page.remove(self.error_text)
             except:
                 pass
+            path = await ft.FilePicker().save_file(
+                file_type=ft.FilePickerFileType.CUSTOM,
+                file_name=f"PC-{self.pc_number_field.value}-{self.supplier_field.text.upper()}",
+                allowed_extensions=["docx"],
+            )
+            if path is None:
+                raise Exception("None")
             try:
                 ref_of_supplier = ""
                 if self.button_pq.value:
@@ -396,7 +418,7 @@ class PcView(ft.Container):
                         self.settings["lenght_pc_number"]
                     ),
                     "date": AppConst.current_date,
-                    "supplier": self.supplier_field.value.upper(),
+                    "supplier": self.supplier_field.text.upper(),
                     "address": self.address_supplier_field.value.upper(),
                     "contact_supplier": self.contact_supplier_field.value.upper(),
                     "email_supplier": self.email_supplier_field.value.lower(),
@@ -512,3 +534,69 @@ class PcView(ft.Container):
         with open("config/settings.json", "r", encoding="utf-8") as f:
             settings = json_load(f)
             return settings
+
+    def _handle_dropdown(self, e):
+        value = e.control.value
+        if value is not None:
+            self.add_provider_button.visible = False
+            addr = self.settings["providers"][int(value)]["address"]
+            contact = self.settings["providers"][int(value)]["contact"]
+            email = self.settings["providers"][int(value)]["email"]
+            self.address_supplier_field.value = addr
+            self.contact_supplier_field.value = contact
+            self.email_supplier_field.value = email
+        else:
+            self.add_provider_button.visible = True
+            self.address_supplier_field.value = ""
+            self.contact_supplier_field.value = ""
+            self.email_supplier_field.value = ""
+        self.page.update()
+
+    def _handle_save_provider(self, e):
+        supplier_name = self.supplier_field.text
+        address = self.address_supplier_field.value
+        contact = self.contact_supplier_field.value
+        email = self.email_supplier_field.value
+        if not supplier_name or not address or not contact or not email:
+            self.page.show_dialog(
+                ft.SnackBar(
+                    ft.Text(
+                        "⚠ Todos los campos del proveedor son obligatorios para añadir un nuevo proveedor"),
+                    duration=3000,
+                )
+            )
+            return
+        current_settings = self.settings.copy()
+        new_provider = {
+            "name": supplier_name.upper(),
+            "address": address.upper(),
+            "contact": contact.upper(),
+            "email": email,
+        }
+        current_settings["providers"].append(new_provider)
+        try:
+            with open("config/settings.json", "w", encoding="utf-8") as f:
+                json_dump(current_settings, f, indent=4, ensure_ascii=False)
+            self.page.show_dialog(
+                ft.SnackBar(
+                    ft.Text(
+                        "✔ El proveedor fue añadido con exito"),
+                    duration=3000,
+                )
+            )
+        except Exception as E:
+            print(E)
+            self.page.show_dialog(
+                ft.SnackBar(
+                    ft.Text(
+                        "❌ Error al añadir el proveedor"),
+                    duration=3000,
+                )
+            )
+        self.settings = self._load_settings()
+        self.add_provider_button.visible = False
+        self.supplier_field.options = [
+            ft.DropdownOption(key=i, text=provider["name"])
+            for i, provider in enumerate(self.settings["providers"])
+        ]
+        self.page.update()

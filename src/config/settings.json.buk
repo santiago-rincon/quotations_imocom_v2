@@ -1,6 +1,6 @@
 {
     "name": {
-        "contact": "Daniela Garcia",
+        "contact": "Daniela garcia",
         "job_title": "Asistente de línea",
         "email_imocom": "dgarcia@imocom.com.co"
     },
@@ -43,5 +43,7 @@
         "FOB",
         "CFR",
         "CIF"
-    ]
+    ],
+    "providers": [],
+    "clients": []
 }
